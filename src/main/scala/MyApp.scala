@@ -76,7 +76,7 @@ object MyApp {
     val e = EMail(from = "jlcanela@videoteam.com", to = "jlcanela@videoteam.com")
 
     val start = System.currentTimeMillis()
-    val count = 1000
+    val count = 10000
 
 
     val seq = (1 to count).map { _ =>
