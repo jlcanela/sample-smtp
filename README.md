@@ -10,3 +10,4 @@ To check max speed
 Current perf on mac book pro quadcore
 * 11.681s per 10k messages of 100KB each with smtp-source
 * 28.676s per 10k messages of 100KB each with scala/java generated message
+* 55s per 10k messages of 100KB each with akka actors
