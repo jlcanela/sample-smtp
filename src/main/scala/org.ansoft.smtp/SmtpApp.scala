@@ -6,7 +6,7 @@ import java.util.Properties
 import org.ansoft.smtp.reaper.{ProductionReaper}
 import org.ansoft.smtp.sender.SmtpSenderActor
 import org.ansoft.smtp.generator.GeneratorActor
-import akka.routing.{DefaultResizer, RoundRobinPool}
+import akka.routing.{FromConfig, DefaultResizer, RoundRobinPool}
 
 
 object SmtpApp {
@@ -21,8 +21,8 @@ object SmtpApp {
 	def start {
 		val system = ActorSystem("MySystem")
     val reaper = system.actorOf(Props[ProductionReaper], name = "reaper")
-    val smtp = system.actorOf(RoundRobinPool(nrOfInstances = 30 /*, resizer = Some(DefaultResizer(lowerBound = 1, upperBound = 10))*/).props(SmtpSenderActor.props(session)), name = "smtp")
-    val generator = system.actorOf(RoundRobinPool(nrOfInstances = 1, resizer = Some(DefaultResizer(lowerBound = 1, upperBound = 4))).props(GeneratorActor.props(session)), name = "generator")
+    val smtp = system.actorOf(FromConfig.props(SmtpSenderActor.props(session)), name = "smtp")
+    val generator = system.actorOf(FromConfig.props(GeneratorActor.props(session)), name = "generator")
 
     (1 to 10000).foreach { i =>
       generator ! i
