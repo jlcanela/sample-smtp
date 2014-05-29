@@ -1,9 +1,9 @@
 package org.ansoft.smtp.generator
 
-import akka.actor.{PoisonPill, Props, ActorLogging, Actor}
+import akka.actor.{Props, ActorLogging, Actor}
 import javax.mail.internet.{MimeBodyPart, MimeMultipart, InternetAddress, MimeMessage}
 import javax.mail.{Session, Message}
-import org.ansoft.smtp.reaper.Reaper
+
 import org.ansoft.smtp.reader.ReaderActor
 
 class GeneratorActor(session: Session) extends Actor with ActorLogging {
