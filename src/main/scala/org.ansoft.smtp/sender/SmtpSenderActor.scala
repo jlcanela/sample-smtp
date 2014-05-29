@@ -5,6 +5,7 @@ import javax.mail.internet.MimeMessage
 import com.sun.mail.smtp.SMTPTransport
 import javax.mail.{Session, Message, URLName}
 import org.ansoft.smtp.reaper.Reaper
+import org.ansoft.smtp.reader.ReaderActor
 
 class SmtpSenderActor(session: Session) extends Actor with ActorLogging {
 
@@ -14,16 +15,25 @@ class SmtpSenderActor(session: Session) extends Actor with ActorLogging {
 
   def receive = {
     case m: MimeMessage ⇒
-      transport.sendMessage(m, m.getRecipients(Message.RecipientType.TO))
+      try {
+        transport.sendMessage(m, m.getRecipients(Message.RecipientType.TO))
+        context.actorSelection("/user/logging") ! ("INFO", "sent email")
+      } catch {
+        case ex: Exception => context.actorSelection("/user/logging") ! ("ERROR", ex.getMessage)
+      }
+
+      context.actorSelection("/user/reader") ! ReaderActor.Read
   }
 
   override def preStart {
     context.actorSelection("/user/reaper") ! Reaper.WatchMe(context.self)
+    context.actorSelection("/user/reader") ! ReaderActor.Read
   }
 
   override def postStop {
     transport.close
   }
+
 }
 
 object SmtpSenderActor {

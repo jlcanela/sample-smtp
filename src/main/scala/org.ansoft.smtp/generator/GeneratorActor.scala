@@ -4,6 +4,7 @@ import akka.actor.{PoisonPill, Props, ActorLogging, Actor}
 import javax.mail.internet.{MimeBodyPart, MimeMultipart, InternetAddress, MimeMessage}
 import javax.mail.{Session, Message}
 import org.ansoft.smtp.reaper.Reaper
+import org.ansoft.smtp.reader.ReaderActor
 
 class GeneratorActor(session: Session) extends Actor with ActorLogging {
 
@@ -45,14 +46,17 @@ class GeneratorActor(session: Session) extends Actor with ActorLogging {
   }
 
   def receive = {
-    case i:Int ⇒ context.actorSelection("/user/smtp") ! createMsg(EMail(from = "jlcanela@videoteam.com", to = "jlcanela@videoteam.com"))
-    case GeneratorActor.Stop ⇒
-      context.parent ! PoisonPill
-      context.actorSelection("/user/smtp/*") ! PoisonPill
-  }
+    case i:Int ⇒ {
+      try {
+        //context.sender ! createMsg(EMail(from = "fromé|\t@example.com", to = "sampleé\t@example.com"))
+        context.sender ! createMsg(EMail(from = "from@example.com", to = "sample@example.com"))
+      } catch {
+        case ex: Exception =>
+          context.actorSelection("/user/logging") ! ("ERROR", ex.getMessage)
+          context.actorSelection("/user/reader").forward(ReaderActor.Read)
+      }
 
-  override def preStart {
-    context.actorSelection("/user/reaper") ! Reaper.WatchMe(context.self)
+    }
   }
 
 }
