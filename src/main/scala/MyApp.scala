@@ -1,6 +1,5 @@
 
 import com.sun.mail.smtp.SMTPTransport
-import java.io.IOException
 import java.util.Properties
 
 import javax.mail._
@@ -66,38 +65,41 @@ object MyApp {
     val props = new Properties
 
     val transport = new SMTPTransport(session, new URLName("127.0.0.1:25"))
-
+    val m = createMsg(email)
     
     // Finally, send the message!
     transport.connect()
     (1 to msgpercnx).foreach { _ =>
-      val m = createMsg(email)
+
       transport.sendMessage(m, m.getRecipients(Message.RecipientType.TO))
     }
     
     transport.close
   }
 
+  val count = 250
+  val msgpercnx = 10
+
+
+  def seq = (1 to count).map { _ =>
+    future {
+      sendMail(email, msgpercnx)
+    }
+  }
+
+  def send {
+    val start = System.currentTimeMillis()
+    Await.result(Future.sequence(seq), 100 seconds)
+    val end = System.currentTimeMillis()
+    println(f"${count*msgpercnx} msgs - ${end-start} ms => ${1.0*count*msgpercnx/(end-start)*1000.}%02.2f msg/s")
+  }
+
   def main(args: Array[String]) {
 
-
-    val start = System.currentTimeMillis()
-    val count = 1000
-    val msgpercnx = 10
-
-
-    val seq = (1 to count).map { _ =>
-      future {
-        sendMail(email, msgpercnx)
-      }
-    }
-
-    Await.result(Future.sequence(seq), 100 seconds)
-    //Future.await
-
-    val end = System.currentTimeMillis()
-
-    println(f"${count*msgpercnx} msgs - ${end-start} ms => ${1.0*count*msgpercnx/(end-start)*1000.}%02.2f msg/s")
+    send
+    send
+    send
+    send
 
   }
 
