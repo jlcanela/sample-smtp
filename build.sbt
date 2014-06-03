@@ -10,4 +10,6 @@ libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.3"
 
 libraryDependencies += "javax.mail" % "mail" % "1.4"
 
+libraryDependencies += "commons-net" % "commons-net" % "3.3"
+
 //libraryDependencies += "com.sun.mail" % "smtp" % "1.4.5"
